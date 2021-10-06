@@ -102,6 +102,11 @@ public class RegistryTruffleFileSystem implements FileSystem {
         var pathString = path.toString();
         var root = IRepositoryStructure.PATH_REGISTRY_PUBLIC;
 
+        source = handleDirigibleScopePath(path);
+        if(!source.isEmpty()) {
+            return new SeekableInMemoryByteChannel(source.getBytes(StandardCharsets.UTF_8));
+        }
+
         if (!pathString.endsWith(".js") && !pathString.endsWith(".mjs")) {
             var module = executor.retrieveModule(root, pathString, ".mjs");
             source = new String(module.getContent(), StandardCharsets.UTF_8);
@@ -150,6 +155,27 @@ public class RegistryTruffleFileSystem implements FileSystem {
         }
 
         return Path.of("/" + pathString);
+    }
+
+    private String handleDirigibleScopePath(String path) throws IOException {
+        return handleDirigibleScopePath(Paths.get(path));
+    }
+
+    private String handleDirigibleScopePath(Path path) throws IOException {
+        var dirigibleScope = "/@dirigible";
+
+        if(path.startsWith(dirigibleScope))
+        {
+            var pathString = path.toString();
+            pathString = pathString.substring(dirigibleScope.length()).replace('-', '/');
+            //var api = StringUtils.substringBeforeLast(pathString, "/");
+            //api = StringUtils.substringAfterLast(api,"/") + ".mjs";
+            //pathString += "/" + api;
+            ExportGenerator generator = new ExportGenerator(executor);
+            return generator.generate(Paths.get(pathString));
+        }
+
+        return "";
     }
 
     @Override
