@@ -9,21 +9,9 @@
  * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and Eclipse Dirigible contributors
  * SPDX-License-Identifier: EPL-2.0
  */
+let response = require("http/v4/response");
 
-exports.assertTrue = function (condition, message) {
-    if (!condition) {
-        throw(message || "Assertion failed");
-    }
-}
+let dtsParser = require("ide-monaco-extensions/api/utils/dtsParser");
 
-exports.assertNotNull = function (condition, message) {
-    if (condition === null) {
-        throw(message || "Assertion failed");
-    }
-}
-
-exports.assertEquals = function assertEquals(actual, expected, message) {
-    if (expected !== actual) {
-       throw(message || "Assertion failed");
-    }
-}
+let dts = dtsParser.getDtsPaths();
+response.println(dts);

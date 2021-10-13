@@ -35,11 +35,25 @@
 <script type="text/javascript" src="js/assignmentsParser.js"></script>
 <script>
 
-        let messageHub = new FramesMessageHub();
+    // const fs = require('fs')
+    // var extLib = []
+    //
+    // fs.readFile('target/classes/META-INF/dirigible/ide-monaco/utils.d.ts', 'utf8' , (err, data) => {
+    //     if (err) {
+    //         console.error(err + "CANT READ THE FILE")
+    //         return
+    //     }
+    //     extLib = data;
+    //     console.log("DATA" + data)
+    // })
+
+
+    let messageHub = new FramesMessageHub();
         let csrfToken;
         let dirty = false;
 
         let modulesSuggestions = [];
+        let dtsContent = "";
         let codeCompletionSuggestions = {};
         let codeCompletionAssignments = {};
         let _editor;
@@ -49,6 +63,8 @@
             let target = this;
             return target.replace(new RegExp(search, 'g'), replacement);
         };
+
+
 
         function FileIO() {
             let __URL = URL;
@@ -463,6 +479,20 @@
             xhrModules.send();
         }
 
+    function loadDTS(dtsContent) {
+        let xhrModules = new XMLHttpRequest();
+        xhrModules.open('GET', '/services/v4/js/ide-monaco-extensions/api/dts.js');
+        xhrModules.setRequestHeader('X-CSRF-Token', 'Fetch');
+        xhrModules.onload = function (xhrModules) {
+            dtsContent = xhrModules.target.responseText;
+            console.log(dtsContent);
+            monaco.languages.typescript.javascriptDefaults.addExtraLib(
+                dtsContent
+            )
+        };
+        xhrModules.send();
+    }
+
         function loadSuggestions(moduleName, suggestions) {
             if (moduleName.split("/").length <= 1) {
                 return
@@ -525,6 +555,9 @@
             });
 
             loadModuleSuggestions(modulesSuggestions);
+            loadDTS(dtsContent);
+
+
 
             require(['vs/editor/editor.main', 'parser/acorn-loose.min'], function (monaco, acornLoose) {
                 let fileIO = new FileIO();
@@ -598,9 +631,8 @@
                         });
                         monaco.languages.typescript.javascriptDefaults.addExtraLib('/** Loads external module: \n\n> ```\nlet res = require("http/v4/response");\nres.println("Hello World!");``` */ var require = function(moduleName: string) {return new Module();};', 'js:require.js');
                         monaco.languages.typescript.javascriptDefaults.addExtraLib('/** $. XSJS API */ var $: any;', 'ts:$.js');
-                        monaco.languages.typescript.javascriptDefaults.addExtraLib(
-                            'declare module "@dirigible/utils" { declare module base64 { function encode(text: string); }}'
-                        )
+
+
                         monaco.languages.registerCompletionItemProvider('javascript', {
                             triggerCharacters: ["\"", "'"],
                             provideCompletionItems: function (model, position) {
