@@ -12,9 +12,9 @@
 
 exports.getContent = function () {
     return [{
-        "name": "@dirigible/utils",
-        "description": "Dirigible Utils module",
-        "isPackageDescription": true,
+        name: "@dirigible/utils",
+        description: "Dirigible Utils module",
+        isPackageDescription: true,
         "dtsPath": "utils/extensions/utils.d.ts"
     }, {
         "require_suggestion": "utils/v4/alphanumeric",
