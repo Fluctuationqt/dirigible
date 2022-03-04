@@ -21,8 +21,8 @@ let parameters = {
     file: ""
 };
 
-import prettier from "https://unpkg.com/prettier@2.5.1/esm/standalone.mjs";
-import parserBabel from "https://unpkg.com/prettier@2.5.1/esm/parser-babel.mjs";
+import prettier from "/webjars/prettier/2.3.1/esm/standalone.mjs";
+import parserBabel from "/webjars/prettier/2.3.1/esm/parser-babel.mjs";
 
 /*eslint-disable no-extend-native */
 String.prototype.replaceAll = function (search, replacement) {
