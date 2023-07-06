@@ -12,6 +12,10 @@
 package org.eclipse.dirigible.components.engine.camel.processor;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
+import org.apache.camel.FluentProducerTemplate;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.builder.ExchangeBuilder;
 import org.apache.camel.spi.Resource;
 import org.apache.camel.spi.RoutesLoader;
 
@@ -23,16 +27,17 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class CamelProcessor {
-
     private final SpringBootCamelContext context;
 
     private final RoutesLoader loader;
@@ -75,5 +80,23 @@ public class CamelProcessor {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Object invokeRoute(String routeId, Object payload, Map<String, Object> headers) {
+        try (FluentProducerTemplate producer = context.createFluentProducerTemplate();) {
+            return producer
+                    .withHeaders(headers)
+                    .withBody(payload)
+                    .to(routeId)
+                    .request();
+        } catch (IOException e) {
+            throw new RuntimeException("Could not create fluent producer");
+        }
+
+        // For future reference. Alternative way to invoke route:
+        // ProducerTemplate producer = context.createProducerTemplate();
+        // Exchange sendExchange = ExchangeBuilder.anExchange(context).withBody(payload).build();
+        // Exchange outExchange = producer.send("direct:" + routeId,sendExchange);
+        // return outExchange.getMessage().getBody(String.class);
     }
 }

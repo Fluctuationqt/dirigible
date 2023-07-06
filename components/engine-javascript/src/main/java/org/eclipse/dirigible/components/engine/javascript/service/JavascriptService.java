@@ -20,12 +20,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
 /**
  * The Class JavascriptHandler.
  */
 @Service
+@Configuration
 public class JavascriptService implements InitializingBean {
 	
 	/** The Constant logger. */
@@ -33,7 +37,7 @@ public class JavascriptService implements InitializingBean {
 
     /** The dirigible source provider. */
     private JavascriptSourceProvider sourceProvider;
-    
+
     /** The repository. */
     private IRepository repository;
     
@@ -42,8 +46,12 @@ public class JavascriptService implements InitializingBean {
     
     /** The instance. */
     private static JavascriptService INSTANCE;
-    
-    /**
+
+	@Autowired
+	private ApplicationContext applicationContext;
+
+
+	/**
      * Instantiates a new javascript service.
      *
      * @param repository the repository
@@ -103,6 +111,7 @@ public class JavascriptService implements InitializingBean {
 	 * @return the object
 	 */
 	public Object handleRequest(String projectName, String projectFilePath, String projectFilePathParam, Map<Object, Object> parameters, boolean debug) {
+		parameters.put("springAppContext", applicationContext);
 		return handler.handleRequest(projectName, projectFilePath, projectFilePathParam, parameters, debug);
 	}
 	
